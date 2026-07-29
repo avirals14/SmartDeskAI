@@ -218,28 +218,8 @@ If you're presenting this and want to be able to defend every line:
 
 ---
 
-## 9. Presenting this to faculty
 
-**Suggested walkthrough:**
-
-1. **Show the architecture diagram** (section 1) — explain the producer/consumer pattern and where auth, dashboard, and semantic search fit in.
-2. **Live demo:** sign up or log in → create a new ticket → show it appears with `priority: unset` → watch the worker log classify it and compute its embedding → refresh to see priority/category/summary populated.
-3. **Dashboard:** show the charts updating as more tickets are processed; open `routes/dashboard.js` and explain the SQL `GROUP BY` queries behind each chart.
-4. **Search:** run the same query in both Keyword and Semantic mode, and show a case where semantic search finds a relevant ticket that keyword search misses because the wording differs.
-5. **Open `backend/sql/init.sql`** — explain the relational schema, the `vector(128)` column, and the `ivfflat` index.
-6. **Open `backend/middleware/auth.js`** — explain the JWT verification and role-based route guarding.
-
-**Likely faculty questions and how to answer them:**
-- *"Why not just one database?"* → Answer with the shape-of-data argument in section 3.
-- *"Is the semantic search 'real' AI?"* → Give the honest answer in section 4 — the vector-DB mechanics are real; the embedding function is a lightweight, swappable stand-in for a transformer model.
-- *"Why a separate worker instead of calling the AI inside the request?"* → Ticket creation must stay fast; AI calls (and now embedding computation) are slower and can be retried independently.
-- *"How would you scale this further?"* → More worker processes reading the same Redis queue, read replicas for Postgres, and swapping the embedding function for a real embeddings API.
-- *"Why Docker for everything now?"* → One `docker compose up` reproduces the exact environment on any machine — this is what "deploying scalable backend services" means in practice, not just writing the code.
-
----
-
-## 10. Honest limitations (know these — faculty will probe them)
-
+## 9. Limitations
 - **Semantic search uses lexical (hashing-trick TF-IDF) embeddings, not deep transformer embeddings.** See section 4 for the precise, defensible framing.
 - **No email verification or password reset flow.** Signup/login work, but account recovery is out of scope for this academic demo.
 - **Single worker instance.** Works for a demo; a real system would run multiple workers and handle job failures/retries more carefully.
