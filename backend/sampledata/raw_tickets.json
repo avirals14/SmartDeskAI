@@ -1,0 +1,32 @@
+[
+  {
+    "customerName": "Rohit Verma",
+    "customerEmail": "rohit.verma@example.com",
+    "subject": "Unable to login to my account",
+    "message": "I keep getting an invalid password error even though I reset it twice today. This is urgent, I need access before my meeting."
+  },
+  {
+    "customerName": "Priya Nair",
+    "customerEmail": "priya.nair@example.com",
+    "subject": "Refund not received",
+    "message": "I cancelled my subscription two weeks ago and was told I'd get a refund within 5 business days, but I still haven't received it."
+  },
+  {
+    "customerName": "Karan Mehta",
+    "customerEmail": "karan.mehta@example.com",
+    "subject": "App crashes on upload",
+    "message": "Every time I try to upload a file larger than 10MB the app crashes with an error. This is a bug that needs fixing."
+  },
+  {
+    "customerName": "Sneha Iyer",
+    "customerEmail": "sneha.iyer@example.com",
+    "subject": "Question about pricing plans",
+    "message": "Could you explain the difference between the Pro and Business plans? I'm trying to decide which one fits my team."
+  },
+  {
+    "customerName": "Arjun Rao",
+    "customerEmail": "arjun.rao@example.com",
+    "subject": "Service completely down",
+    "message": "The entire dashboard is down for my whole team right now, this is critical and blocking our work."
+  }
+]

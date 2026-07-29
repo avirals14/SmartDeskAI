@@ -1,0 +1,9 @@
+# Backend runtime and generated files
+uploads/
+storage/
+*.sqlite
+*.sqlite3
+*.db
+
+# Logs
+*.log

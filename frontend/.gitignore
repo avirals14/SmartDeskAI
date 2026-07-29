@@ -1,0 +1,8 @@
+# Frontend build and cache files
+dist/
+build/
+coverage/
+.vite/
+
+# Logs
+*.log

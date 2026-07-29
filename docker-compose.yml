@@ -1,0 +1,115 @@
+version: "3.8"
+
+services:
+  # ---------------- Databases ----------------
+  postgres:
+    # pgvector/pgvector ships PostgreSQL with the pgvector extension
+    # preinstalled — required for the semantic search feature
+    # (ticket_vectors table, see backend/sql/init.sql).
+    image: pgvector/pgvector:pg16
+    container_name: smartdesk-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: smartdesk
+      POSTGRES_PASSWORD: smartdesk_pass
+      POSTGRES_DB: smartdesk
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./backend/sql:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U smartdesk -d smartdesk"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  mongo:
+    image: mongo:7
+    container_name: smartdesk-mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodata:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: smartdesk-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # ---------------- Application ----------------
+  backend:
+    build: ./backend
+    container_name: smartdesk-backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      PORT: 4000
+      PG_HOST: postgres
+      PG_PORT: 5432
+      PG_USER: smartdesk
+      PG_PASSWORD: smartdesk_pass
+      PG_DATABASE: smartdesk
+      MONGO_URI: mongodb://mongo:27017/smartdesk
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: ${JWT_SECRET:-dev-secret-change-me}
+      GROQ_API_KEY: ${GROQ_API_KEY:-}
+    ports:
+      - "4000:4000"
+
+  worker:
+    build: ./backend
+    container_name: smartdesk-worker
+    restart: unless-stopped
+    command: ["node", "worker/aiWorker.js"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      PG_HOST: postgres
+      PG_PORT: 5432
+      PG_USER: smartdesk
+      PG_PASSWORD: smartdesk_pass
+      PG_DATABASE: smartdesk
+      MONGO_URI: mongodb://mongo:27017/smartdesk
+      REDIS_URL: redis://redis:6379
+      GROQ_API_KEY: ${GROQ_API_KEY:-}
+
+  frontend:
+    build: ./frontend
+    container_name: smartdesk-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "8080:80"
+
+volumes:
+  pgdata:
+  mongodata:
+  redisdata:
